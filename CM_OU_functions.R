@@ -3,14 +3,14 @@ library(ape); library(phytools); library(MASS); library(scales)
 
 #Setup: get covariance matrix and individuals per species
 {#read in the phylogenetic tree, convert to covariance matrix, and set up the study design (individuals per species)
-{read.tree("~/CM/Newick_NoChacma.txt") -> tree
+{read.tree("./ExNewick.txt") -> tree
   vcv.phylo(tree) -> covar_matrix
   covar_matrix[c(1,4,3,2,5,6),c(1,4,3,2,5,6)] -> covar_matrix #I needed to reorder the matrix to match my other files
   covar_matrix <- covar_matrix/max(covar_matrix) #just scales the matrix, this doesn't matter and just relates to delta
   rm(tree)}
 
 ###Get number of individuals per species & produce the z-matrix (which we will later multiply by the covariance matrix)
-{read.delim('~/CM/CM44_nindiv.txt', header=F, sep=' ') -> indiv_spec
+{read.delim('./Ex_nindiv.txt', header=F, sep=' ') -> indiv_spec
   sum(indiv_spec) -> nindiv
   for (i in 2:6) {indiv_spec[i] <- sum(indiv_spec[(i-1):i])}; rm(i)
   nspec <- length(indiv_spec)
@@ -30,7 +30,9 @@ library(ape); library(phytools); library(MASS); library(scales)
     }
     zmat[c(seq(unlist(mini),unlist(maxi))),k] <- 1
   }
-  rm(k); rm(maxi); rm(mini)}}
+  rm(k); rm(maxi); rm(mini)
+}
+}
 
 #fit_multi: function for fitting using parallel
 ##This is the function that will fit all models for a site and return a list of parameter estimates and likelihoods
@@ -46,9 +48,8 @@ fit_multi <- function(number, type) {
   #Guess at the ancestral state using the mean across all individuals
   prevU = mean(unlist(data1), na.rm=T)
   
-  #Based upon "type", fit the appropriate BM or OU model
-  
-  if (type[1]="BM") {
+  #fit the appropriate BM or OU model
+  if (type[1]=="BM") {
     #Fit BM model
     ##Make temporary files for the parameter estimates (model_pars) and -log-likelihood (Model_Lik)
     ###We'll use these objects to store the best fitting model
@@ -70,10 +71,9 @@ fit_multi <- function(number, type) {
     #Store best parameters for the site in a single table
     as.data.frame(matrix(ncol=4,nrow=1)) -> pars
     model_pars -> pars[1,1:3]; Model_Lik -> pars[1,4]
-    }
-  
+  } 
   else { 
-    if (type[1]="OU") {
+    if (type[1]=="OU") {
     #Fit OU model for stabilizing selection
     ##Make temporary files for the parameter estimates (model_pars) and -log-likelihood (Model_Lik)
     ###We'll use these objects to store the best fitting model
@@ -99,7 +99,6 @@ fit_multi <- function(number, type) {
     as.data.frame(matrix(ncol=5,nrow=1)) -> pars
     model_pars -> pars[1,1:4]; Model_Lik -> pars[1,5]
     }
-    
     else {
       #Fit OU model for directional selection
       ##Make temporary files for the parameter estimates (model_pars) and -log-likelihood (Model_Lik)
@@ -126,8 +125,8 @@ fit_multi <- function(number, type) {
       #Store best parameters for the site in a single table
       as.data.frame(matrix(ncol=6,nrow=1)) -> pars
       model_pars -> pars[1,1:5]; Model_Lik -> pars[1,6]
-  } }
-  
+    } 
+  }
   return(pars)
 }
 
@@ -224,4 +223,4 @@ OU2lik <- function(delta, alpha, tau2, theta1, theta2, lin, info) {
   return(-(dmvnorm(unlist(info),unlist(Edata),varcovar,log=TRUE)))
 }
 
-save.image('~/Functions_Mar2018.RData')
+save.image('./OU_Functions.RData')

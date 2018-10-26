@@ -1,13 +1,9 @@
-#!/usr/bin/env Rscript
-#--get-user-env
-
 #Model Simulation & Fitting
-#Dec 5
 
 #Get basic environment
 library(ape); library(phytools); library(MASS); library(scales); library(parallel)
 #This file contains all the the equations and functions needed to fit the optimization
-load("~/Functions_Mar2018.RData")
+load("./OU_Functions.RData")
 
 #read in the data
 read.delim("./yourdata.txt", header=F) -> simdata
@@ -47,7 +43,7 @@ for (i in 1:100) {
 }
 row.names(params) <- names[MINVAL:MAXVAL]
 
-write.table(params, "res_real_NUMBER.txt", row.names=T, col.names=F, sep="\t", quote=F)
+write.table(params, "results.TYPE.txt", row.names=T, col.names=F, sep="\t", quote=F)
 
 #If type='BM', colnames = c('x0','delta','tau', 'lik')
 #If type='OU', colnames = c('theta','delta','alpha','tau', 'lik')

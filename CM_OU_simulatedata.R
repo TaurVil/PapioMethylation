@@ -4,7 +4,7 @@ library(ape); library(phytools); library(MASS); library(scales)
 ##Modify Block 7-14 & line 77
 
 #set paramaters we simulate based off of
-{alpha=2 #the strength of selection
+{alpha=2 #the strength of selection, 0 represents brownian motion
 delta=2 #the diffusion factor or rate of neutral change
 #delta = sigma2/2alpha for OU models; sigma2 for BM models
 #note that for these factors, we assume the mutational input follows a normal distribution
@@ -14,14 +14,14 @@ diff=0 #the difference between the branch with selection and branch without sele
 }
 
 #read in the phylogenetic tree, convert to covariance matrix, and set up the study design (individuals per species)
-{read.tree("~/CM/Newick_NoChacma.txt") -> tree
+{read.tree("./ExNewick.txt") -> tree
 vcv.phylo(tree) -> covar_matrix
 covar_matrix[c(1,4,3,2,5,6),c(1,4,3,2,5,6)] -> covar_matrix #I needed to reorder the matrix to match my other files
 covar_matrix <- covar_matrix/max(covar_matrix) #just scales the matrix, this doesn't matter and just relates to delta
 rm(tree)}
 
 ###Get number of individuals per species & produce the z-matrix (which we will later multiply by the covariance matrix)
-{read.delim('~/CM/CM44_nindiv.txt', header=F, sep=' ') -> indiv_spec
+{read.delim('./Ex_nindiv.txt', header=F, sep=' ') -> indiv_spec
 sum(indiv_spec) -> nindiv
 for (i in 2:6) {indiv_spec[i] <- sum(indiv_spec[(i-1):i])}; rm(i)
 nspec <- length(indiv_spec)
@@ -102,6 +102,6 @@ sim_pars[1,] <- c(x0,x1,delta,alpha,tau2,diff)
 ###Create simdata and sim_pars files with the number of rows for the number of sites. 
 ###simdata <- as.data.frame(matrix(ncol=max(indiv_spec), nrow=100))
 ###sim_pars <- as.data.frame(matrix(ncol=6, nrow=100))
-###save ouptuts in lines 61, 67, 85, 90, and 98 to i rather than 1
+###for (i in 1:100) {save ouptuts in lines 61, 67, 85, 90, and 98 to i rather than 1}
 ##can simulate sets over multiple parameter values by drawing or setting parameter within the for loop as well
-
+##output file
